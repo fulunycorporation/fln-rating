@@ -59,8 +59,10 @@
     <script>
         async function loadLiveMatches() {
             try {
-                // Запрос к API
-                const response = await fetch('https://api.cs2-api.org/v1/matches?status=live');
+                const API_KEY = 'npx cito-mcp install --key cito_894e0c5905e16e53652469883032a3f04c9c337a33caee882204500599074da9';
+                      const response = await fetch('https://api.citoapi.com/api/v1/cs2/live', {
+        headers: { 'x-api-key': API_KEY }
+      });
                 const data = await response.json();
                 const container = document.getElementById('live-matches');
                 
