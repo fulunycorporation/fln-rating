@@ -1,1 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>FLN Rating | Профиль</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1d; color: #e0e0e0; padding: 20px; }
+        h1 { color: #ff4d4d; text-transform: uppercase; letter-spacing: 2px; }
+        input { background: #2b2b36; border: 2px solid #3d3d4d; color: #fff; padding: 12px; width: 320px; border-radius: 8px; font-size: 1rem; }
+        button { background: #ff4d4d; border: none; color: #fff; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #ff6b6b; }
+        .card { background: #2b2b36; border-left: 4px solid #ff4d4d; padding: 20px; margin-top: 20px; border-radius: 8px; }
+        .card a { color: #ff6b6b; }
+    </style>
+</head>
+<body>
+    <h1>Мой профиль</h1>
+    <p>Введи свой Steam ID (формат 76561198...) или ссылку на профиль</p>
+    <input id="steam-id" placeholder="76561198...">
+    <button onclick="saveProfile()">Показать</button>
+    <div id="result"></div>
+
+    <script>
+        // Загружаем сохранённый ID при открытии страницы
+        window.onload = () => {
+            const saved = localStorage.getItem('fln_steam_id');
+            if (saved) { document.getElementById('steam-id').value = saved; showProfile(saved); }
+        };
+
+        function saveProfile() {
+            const id = document.getElementById('steam-id').value.trim();
+            if (!id) return;
+            localStorage.setItem('fln_steam_id', id);
+            showProfile(id);
+        }
+
+        function showProfile(id) {
+            // Достаём число из ссылки, если ввели URL
+            const match = id.match(/\d{17}/);
+            const steamId = match ? match[0] : id;
+            document.getElementById('result').innerHTML = `
+                <div class="card">
+                    <h2>Профиль сохранён ✅</h2>
+                    <p>Steam ID: <b>${steamId}</b></p>
+                    <p>В v0.2 здесь появится твоя статистика: K/D, ADR, HS%.</p>
+                    <p>А пока можно посмотреть подробную статистику на <a href="https://leetify.com/app/profile/${steamId}" target="_blank">Leetify</a>.</p>
+                </div>`;
+        }
+    </script>
+</body>
+</html>
 
