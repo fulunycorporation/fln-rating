@@ -1,60 +1,132 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<link rel="icon" href="favicon.ico" type="image/x-icon">
-    <meta charset="UTF-8">
-    <title>FLN Rating | VRS</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1d; color: #e0e0e0; padding: 20px; }
-        h1 { color: #ff4d4d; text-transform: uppercase; letter-spacing: 2px; }
-        nav a { color: #e0e0e0; margin-right: 15px; text-decoration: none; }
-        nav a.active { color: #ff4d4d; border-bottom: 2px solid #ff4d4d; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #2b2b36; }
-        th { color: #888; font-size: 0.8rem; text-transform: uppercase; }
-        tr:hover { background: #2b2b36; }
-        .pos-change { font-size: 0.8rem; }
-        .up { color: #4caf50; } .down { color: #ff4d4d; }
-        .top3 { color: #ffd700; font-weight: bold; }
-    </style>
-</head>
+<style>
+    body { font-family: 'Segoe UI', sans-serif; background: #0f0f12; color: #e0e0e0; padding: 20px; margin: 0; }
+    h1 { color: #ff4d4d; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
+    .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+    
+    nav a { color: #888; margin-right: 15px; text-decoration: none; }
+    nav a.active, nav a:hover { color: #ff4d4d; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1a1a1d; padding: 10px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #2b2b36; }
+    th { color: #555; font-size: 0.8rem; text-transform: uppercase; font-weight: normal; }
+    
+    /* Позиция */
+    .rank-num { font-weight: bold; color: #fff; }
+    .top1 { color: #ffd700; font-size: 1.2rem; }
+    .top2 { color: #c0c0c0; }
+    .top3 { color: #cd7f32; }
+
+    /* Команда */
+    .team-name { font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .flag-icon { width: 24px; height: 16px; border-radius: 2px; object-fit: cover; }
+    
+    /* Очки и прогресс */
+    .points-block { display: flex; align-items: center; gap: 10px; }
+    .progress-bar { 
+        flex: 1; height: 6px; background: #2b2b36; border-radius: 3px; overflow: hidden; 
+    }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #ff4d4d, #ff8585); transition: width 0.4s ease; }
+    
+    /* Динамика */
+    .change-badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+    .up { background: rgba(76, 252, 81, 0.15); color: #4caf50; }
+    .down { background: rgba(255, 77, 77, 0.15); color: #ff4d4d; }
+    .no-change { color: #666; }
+
+    tr:hover { background: #25252b; cursor: default; }
+    
+    .loading { text-align: center; color: #666; padding: 40px; }
+</style>
 <body>
     <nav>
         <a href="index.html">Live</a>
         <a href="rating.html" class="active">Рейтинг VRS</a>
         <a href="profile.html">Профиль</a>
     </nav>
+
     <h1>Valve Regional Standings</h1>
-    <p>Топ-20 команд по официальному рейтингу Valve • обновление раз в 30 минут</p>
+    <p class="subtitle">Официальный региональный рейтинг команд CS2. Топ-20 по силе.</p>
+
     <table>
         <thead>
-            <tr><th>#</th><th>Команда</th><th>Очки</th><th>Δ</th></tr>
+            <tr>
+                <th style="width: 50px">#</th>
+                <th>Команда</th>
+                <th style="width: 120px;">Очки</th>
+                <th style="width: 80px;">Динамика</th>
+            </tr>
         </thead>
         <tbody id="vrs-table"></tbody>
     </table>
 
+    <div style="margin-top: 30px; font-size: 0.85rem; color: #555;">
+        <p>💡 <b>Что такое VRS?</b> Это официальный рейтинг Valve, который учитывает силу соперников, важность матчей и текущую форму. Чем выше — тем сильнее команда.</p>
+        <p>🕒 Данные обновляются автоматически каждые 30 минут (кеш в браузере).</p>
+    </div>
+
     <script>
         const CACHE_KEY = 'fln_vrs_cache';
         const CACHE_TIME = 30 * 60 * 1000; // 30 минут
-        const API_KEY = 'npx cito-mcp install --key cito_894e0c5905e16e53652469883032a3f04c9c337a33caee882204500599074da9'; // сюда вставляешь свой ключ с cs2-api.org
+        // ВСТАВЬ СЮДА СВОЙ КЛЮЧ
+        const API_KEY = 'npx cito-mcp install --key cito_894e0c5905e16e53652469883032a3f04c9c337a33caee882204500599074da9'; 
 
         function render(rows) {
-            document.getElementById('vrs-table').innerHTML = rows.map(r => {
-                const change = r.change > 0 ? `<span class="pos-change up">▲ ${r.change}</span>`
-                             : r.change < 0 ? `<span class="pos-change down">▼ ${Math.abs(r.change)}</span>` : '—';
-                const name = r.rank <= 3 ? `<span class="top3">${r.teamName}</span>` : r.teamName;
-                return `<tr><td>${r.rank}</td><td>${name}</td><td>${r.points}</td><td>${change}</td></tr>`;
+            if (!rows || rows.length === 0) {
+                document.getElementById('vrs-table').innerHTML = '<tr><td colspan="4" class="loading">Загрузка рейтинга...</td></tr>';
+                return;
+            }
+
+            // Находим макс. очки для расчёта ширины прогресс-бара
+            const maxPoints = Math.max(...rows.map(r => r.points));
+
+            const html = rows.map((r, index) => {
+                // Классы для топ-3
+                const rankClass = r.rank === 1 ? 'top1' : (r.rank === 2 ? 'top2' : (r.rank === 3 ? 'top3' : ''));
+                
+                // Цвет изменения
+                let changeClass = 'no-change';
+                let changeText = '—';
+                if (r.change > 0) { changeClass = 'up'; changeText = `▲ ${r.change}`; }
+                else if (r.change < 0) { changeClass = 'down'; changeText = `▼ ${Math.abs(r.change)}`; }
+
+                // Ширина прогресс-бара в процентах
+                const progressWidth = ((r.points / maxPoints) * 100).toFixed(1);
+
+                return `
+                <tr style="opacity: 0; animation: fadeIn 0.3s forwards;">
+                    <td><span class="rank-num ${rankClass}">#${r.rank}</span></td>
+                    <td class="team-name">
+                        <!-- Флаг можно добавить, если API отдаёт country_code -->
+                        <span>${r.teamName}</span>
+                    </td>
+                    <td>
+                        <div class="points-block">
+                            <span style="min-width: 40px;">${r.points}</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progressWidth}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="change-badge ${changeClass}">${changeText}</span>
+                    </td>
+                </tr>
+                `;
             }).join('');
+
+            document.getElementById('vrs-table').innerHTML = html;
         }
 
+        // Простая анимация появления
+        document.body.style.setProperty('--animation-delay', '0.1s');
+
         async function loadVRS() {
-            // 1. Смотрим кеш
             const cached = localStorage.getItem(CACHE_KEY);
             if (cached) {
                 const { time, data } = JSON.parse(cached);
                 if (Date.now() - time < CACHE_TIME) { render(data); return; }
             }
-            // 2. Кеша нет или устарел — идём в API
+
             try {
                 const res = await fetch('https://api.citoapi.com/api/v1/cs2/rankings/vrs?limit=20', {
                     headers: { 'x-api-key': API_KEY }
@@ -66,12 +138,25 @@
             } catch (e) {
                 console.error(e);
                 document.getElementById('vrs-table').innerHTML =
-                    '<tr><td colspan="4">Не удалось загрузить рейтинг. Если у тебя есть сохранённые данные — они скоро подгрузятся.</td></tr>';
+                    '<tr><td colspan="4" class="loading" style="color: #ff4d4d;">Не удалось загрузить рейтинг. Проверьте консоль.</td></tr>';
             }
         }
 
         loadVRS();
     </script>
+    
+    <!-- Добавляем анимацию, чтобы строки выплывали по очереди -->
+    <style>
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Хак для задержки строк */
+        tr:nth-child(1) { animation-delay: 0s; }
+        tr:nth-child(2) { animation-delay: 0.05s; }
+        tr:nth-child(3) { animation-delay: 0.1s; }
+        tr:nth-child(4) { animation-delay: 0.15s; }
+        tr:nth-child(5) { animation-delay: 0.2s; }
+        /* и так далее... для MVP хватит первых 5, остальные появятся быстро */
+    </style>
 </body>
-</html>
 
