@@ -113,7 +113,7 @@
         async function loadLive() {
             // ВСТАВЬ СЮДА СВОЙ КЛЮЧ И АДРЕС WORKER
             const apiUrl = 'https://твой-воркер.workers.dev/api/v1/cs2/live'; 
-            const key = 'npx cito-mcp install --key cito_894e0c5905e16e53652469883032a3f04c9c337a33caee882204500599074da9';
+            const key = 'cito_894e0c5905e16e53652469883032a3f04c9c337a33caee882204500599074da9';
             
             try {
                 const res = await fetch(apiUrl, { headers: { 'x-api-key': key } });
@@ -178,7 +178,7 @@
 
         // --- ЗАГРУЗКА ОФИЦИАЛЬНОГО РЕЙТИНГА (API) ---
         async function loadOfficialRanking() {
-            const key = 'npx cito-mcp install --key cito_894e0c5905e16e53652469883032a3f04c9c337a33caee882204500599074da9';
+            const key = 'cito_894e0c5905e16e53652469883032a3f04c9c337a33caee882204500599074da9';
             try {
                 const res = await fetch('https://api.citoapi.com/api/v1/cs2/rankings/vrs?limit=5', {
                     headers: { 'x-api-key': key }
