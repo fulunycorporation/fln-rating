@@ -1,1 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>FLN Rating | VRS</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1d; color: #e0e0e0; padding: 20px; }
+        h1 { color: #ff4d4d; text-transform: uppercase; letter-spacing: 2px; }
+        nav a { color: #e0e0e0; margin-right: 15px; text-decoration: none; }
+        nav a.active { color: #ff4d4d; border-bottom: 2px solid #ff4d4d; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #2b2b36; }
+        th { color: #888; font-size: 0.8rem; text-transform: uppercase; }
+        tr:hover { background: #2b2b36; }
+        .pos-change { font-size: 0.8rem; }
+        .up { color: #4caf50; } .down { color: #ff4d4d; }
+        .top3 { color: #ffd700; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Live</a>
+        <a href="rating.html" class="active">Рейтинг VRS</a>
+        <a href="profile.html">Профиль</a>
+    </nav>
+    <h1>Valve Regional Standings</h1>
+    <p>Топ-20 команд по официальному рейтингу Valve • обновление раз в 30 минут</p>
+    <table>
+        <thead>
+            <tr><th>#</th><th>Команда</th><th>Очки</th><th>Δ</th></tr>
+        </thead>
+        <tbody id="vrs-table"></tbody>
+    </table>
+
+    <script>
+        const CACHE_KEY = 'fln_vrs_cache';
+        const CACHE_TIME = 30 * 60 * 1000; // 30 минут
+        const API_KEY = 'npx cito-mcp install --key cito_894e0c5905e16e53652469883032a3f04c9c337a33caee882204500599074da9'; // сюда вставляешь свой ключ с cs2-api.org
+
+        function render(rows) {
+            document.getElementById('vrs-table').innerHTML = rows.map(r => {
+                const change = r.change > 0 ? `<span class="pos-change up">▲ ${r.change}</span>`
+                             : r.change < 0 ? `<span class="pos-change down">▼ ${Math.abs(r.change)}</span>` : '—';
+                const name = r.rank <= 3 ? `<span class="top3">${r.teamName}</span>` : r.teamName;
+                return `<tr><td>${r.rank}</td><td>${name}</td><td>${r.points}</td><td>${change}</td></tr>`;
+            }).join('');
+        }
+
+        async function loadVRS() {
+            // 1. Смотрим кеш
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const { time, data } = JSON.parse(cached);
+                if (Date.now() - time < CACHE_TIME) { render(data); return; }
+            }
+            // 2. Кеша нет или устарел — идём в API
+            try {
+                const res = await fetch('https://api.citoapi.com/api/v1/cs2/rankings/vrs?limit=20', {
+                    headers: { 'x-api-key': API_KEY }
+                });
+                const json = await res.json();
+                const data = json.data;
+                render(data);
+                localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data }));
+            } catch (e) {
+                console.error(e);
+                document.getElementById('vrs-table').innerHTML =
+                    '<tr><td colspan="4">Не удалось загрузить рейтинг. Если у тебя есть сохранённые данные — они скоро подгрузятся.</td></tr>';
+            }
+        }
+
+        loadVRS();
+    </script>
+</body>
+</html>
 
