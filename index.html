@@ -1,3 +1,37 @@
+<div id="live-matches"></div>
+
+<script>
+  async function loadLiveMatches() {
+    try {
+      const response = await fetch('https://api.cs2-api.org/v1/matches?status=live');
+      const data = await response.json();
+      const container = document.getElementById('live-matches');
+      
+      if (!data.matches || data.matches.length === 0) {
+        container.innerHTML = '<p>Сейчас нет живых матчей</p>';
+        return;
+      }
+
+      let html = '';
+      data.matches.forEach(match => {
+        html += `
+          <div class="match-card">
+            <div class="team-left">${match.team1.name}</div>
+            <div class="score">${match.score1} : ${match.score2}</div>
+            <div class="team-right">${match.team2.name}</div>
+            <div class="tournament">${match.tournament.name}</div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    } catch (error) {
+      console.error('Ошибка загрузки матчей:', error);
+      document.getElementById('live-matches').innerHTML = '<p>Не удалось загрузить данные</p>';
+    }
+  }
+
+  loadLiveMatches();
+</script>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
