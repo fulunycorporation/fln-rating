@@ -1,0 +1,23 @@
+{
+  "power_ranking": [
+    { "rank": 1, "team": "Team Spirit", "reason": "Стабильная игра, лучший IGL в регионе." },
+    { "rank": 2, "team": "FaZe Clan", "reason": "Индивидуальные звезды, но нестабильность." },
+    { "rank": 3, "team": "Vitality", "reason": "Агрессивный стиль, много эйсов." },
+    { "rank": 4, "team": "G2 Esports", "reason": "Перестройка состава, потенциал огромный." },
+    { "rank": 5, "team": "Natus Vincere", "reason": "Опыт и хладнокровие в клатчах." }
+  ],
+  "transfers": [
+    {
+      "title": "Слух: s1mple может вернуться в NAVI",
+      "date": "24 Окт 2024",
+      "status": "rumor", 
+      "description": "По данным инсайдеров, s1mple ведёт переговоры с руководством NAVI о возвращении на роль капитана."
+    },
+    {
+      "title": "Официально: electroNic переходит в Cloud9",
+      "date": "25 Окт 2024",
+      "status": "confirmed",
+      "description": "Cloud9 подтвердили подписание контракта с electroNic. Он заменит fallen на позиции рифлера."
+    }
+  ]
+}
