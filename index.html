@@ -67,7 +67,23 @@
                 const container = document.getElementById('live-matches');
                 
                 if (!data.matches || data.matches.length === 0) {
-                    container.innerHTML = '<p>Сейчас нет живых матчей 😴</p>';
+container.innerHTML = `
+  <p style="color: #888;">Сейчас нет живых матчей, но вот как это выглядит в игре:</p>
+  <div class="match-card">
+    <div class="team-name">Team Spirit</div>
+    <div class="score">16 : 14</div>
+    <div class="team-name" style="text-align: right;">FaZe Clan</div>
+  </div>
+  <div class="tournament">IEM Katowice 2025</div>
+
+  <div class="match-card" style="margin-top: 15px;">
+    <div class="team-name">G2 Esports</div>
+    <div class="score">13 : 16</div>
+    <div class="team-name" style="text-align: right;">Vitality</div>
+  </div>
+  <div class="tournament">ESL Pro League</div>
+`;
+
                     return;
                 }
 
